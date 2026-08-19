@@ -62,8 +62,14 @@ if [[ "$confirm" =~ ^[Nn] ]]; then
     exit 0
 fi
 
-# Determine terminal width
-term_width=$(tput cols 2>/dev/null || echo 80)
+# Determine terminal width dynamically and robustly
+term_width=$(tput cols < /dev/tty 2>/dev/null)
+if [[ -z "$term_width" || "$term_width" -le 0 ]]; then
+    term_width=$(stty size < /dev/tty 2>/dev/null | awk '{print $2}')
+fi
+if [[ -z "$term_width" || "$term_width" -le 0 ]]; then
+    term_width=${COLUMNS:-120} # Fallback to 120 if everything else fails
+fi
 
 # Hide cursor
 tput civis 2>/dev/null || true
