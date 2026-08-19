@@ -25,8 +25,8 @@ sleep 0.4
 echo -e "✓ Pink Color ................. ${PINK}ENABLED 🩷${RESET}"
 sleep 0.8
 
-# Save bus art to a variable
-IFS='' read -r -d '' bus_art << "EOF" || true
+# Save bus art frames to variables
+IFS='' read -r -d '' bus_art_1 << "EOF" || true
            .--------------.                            ---------------.                             
      ......................................................................................         
      ...::::::::::-::::::::::::::-..........-:::::::::::::::::::::::-..........-:::::::::-::.:      
@@ -46,9 +46,29 @@ IFS='' read -r -d '' bus_art << "EOF" || true
                  :++:                                        -++:                  -++:             
 EOF
 
+IFS='' read -r -d '' bus_art_2 << "EOF" || true
+           .--------------.                            ---------------.                             
+     ......................................................................................         
+     ...::::::::::-::::::::::::::-..........-:::::::::::::::::::::::-..........-:::::::::-::.:      
+     .............+..............*:.......:.#.............:.........+:....=..:.+         =    -     
+     ....         +             .*:  ...  ..#                       +:  ..=  ..+         =    +     
+     ....         +             .*:  ...  ..#                       +:  ..=  ..+         =    :     
+     ....         +             .*:  ...  ..#                       +:  ..=  ..+         =          
+     ...:   .*    + .+      .=  .*:  ...  ..# *.      #.      *     +:  ..=  ..+ .+      =          
+     ....:. .*    + .*      .*  .*:  ...  ..# *:      #.      *.    +:  ..=  ..+ .*     ==-**.      
+     ......++*++++*++*+++++++*++++:  ...  ..*+*+++++++++++++++*+++++=:  ..=  ..*++*+++++*+***.      
+     ......... PINK BUS .........-::::..:::... DHAKA <-> BOGURA ....:::::.=::-................      
+     ..-====:............::......-:  ...  ................::........::  ..=  .................      
+     ..:::::.....=++=............-..........................:=*+=...:..............=*+=.....+.      
+     ..........=#....#=..........-.........................=+....#:.:............=*....*-.....      
+            ...#..##.:#------------------------------------#.:#*.:#--------------#..##.:#---:       
+               =.*..#.-                                    =.*..#.-              =.*..#.-           
+                 :xx:                                        -xx:                  -xx:             
+EOF
+
 echo ""
 echo -e "${PINK}"
-echo "$bus_art"
+echo "$bus_art_1"
 echo -e "${RESET}"
 sleep 0.8
 
@@ -74,19 +94,37 @@ fi
 # Hide cursor
 tput civis 2>/dev/null || true
 
-# Animate moving forward until it completely disappears
-for (( i=0; i<=term_width+2; i+=2 )); do
+bus_width=100
+
+# Animate moving forward from offscreen left to offscreen right
+for (( pos=-bus_width; pos<=term_width; pos+=2 )); do
     clear
     echo -e "${GREEN}STATUS:${RESET} ${PINK}PINK BUS IS ON THE MOVE! 🚌💨🩷${RESET}"
     echo ""
     echo -e "${PINK}"
     
-    pad=$(printf '%*s' "$i" '')
+    # Spin the wheels by alternating frames
+    frame=$(( (pos / 2) % 2 ))
+    if (( frame == 0 || frame == -0 )); then
+        current_art="$bus_art_1"
+    else
+        current_art="$bus_art_2"
+    fi
+    
     while IFS= read -r line; do
-        padded="${pad}${line}"
-        # Trim to terminal width to avoid wrapping
-        echo "${padded:0:$term_width}"
-    done <<< "$bus_art"
+        # Ensure line is 100 characters padded
+        padded_line=$(printf '%-100s' "$line")
+        
+        if (( pos < 0 )); then
+            skip=$(( -pos ))
+            # Print substring starting at 'skip', length 'term_width'
+            echo "${padded_line:$skip:$term_width}"
+        else
+            pad=$(printf '%*s' "$pos" '')
+            padded="${pad}${padded_line}"
+            echo "${padded:0:$term_width}"
+        fi
+    done <<< "$current_art"
     
     echo -e "${RESET}"
     sleep 0.04
