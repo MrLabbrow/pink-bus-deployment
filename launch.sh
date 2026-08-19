@@ -100,6 +100,10 @@ if [[ -z "$term_width" || "$term_width" -le 0 ]]; then
     term_width=${COLUMNS:-120} # Fallback to 120 if everything else fails
 fi
 
+# Prevent terminal auto-wrap from breaking the ASCII art lines
+((term_width--))
+if (( term_width < 40 )); then term_width=40; fi
+
 # Hide cursor
 tput civis 2>/dev/null || true
 
@@ -175,7 +179,10 @@ for (( pos=-bus_width; pos<=term_width; pos+=2 )); do
         ((line_idx++))
     done <<< "$current_art"
     
-    echo -e "${RESET}"
+    # Draw a solid road underneath the bus and gate
+    road=$(printf "%${term_width}s" | tr ' ' '=')
+    echo -e "${RESET}${road}"
+    
     sleep 0.04
 done
 
