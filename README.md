@@ -1,6 +1,6 @@
 # 🚌 BRTC Pink Bus Deployment
 
-Deploy the official Bangladesh BRTC Pink Bus directly to your terminal!
+Deploy Bangladesh BRTC Pink Bus directly to your terminal!
 
 ## Features
 - **Dynamic Terminal Animation:** The bus flawlessly drives across your screen with spinning wheels and exits through a toll gate.
