@@ -9,9 +9,17 @@ RESET='\033[0m'
 # No argument needed since it's inherently a pink bus!
 
 echo -e "${PINK}Initializing Bangladesh Bus System...${RESET}"
+tput civis 2>/dev/null || true # Hide cursor
+bar=""
+for i in {1..36}; do
+    bar+="#"
+    pct=$(( i * 100 / 36 ))
+    printf "\r${PINK}[%-36s] %3d%%${RESET}" "$bar" "$pct"
+    sleep 0.04
+done
+echo ""
+tput cnorm 2>/dev/null || true
 sleep 0.5
-echo -e "${PINK}[####################################] 100%${RESET}"
-sleep 0.8
 
 # System Checklist
 echo -e "✓ Engine ..................... ${GREEN}OK${RESET}"
