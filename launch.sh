@@ -6,12 +6,7 @@ PINK='\033[38;5;206m'
 GREEN='\033[38;5;46m'
 RESET='\033[0m'
 
-# Check argument
-if [[ $# -ne 1 || "$1" != "--bus-color=pink" ]]; then
-    echo -e "${PINK}Error: You must run the script with the '--bus-color=pink' flag.${RESET}" >&2
-    echo "Usage: $0 --bus-color=pink" >&2
-    exit 1
-fi
+# No argument needed since it's inherently a pink bus!
 
 echo -e "${PINK}Initializing Bangladesh Bus System...${RESET}"
 sleep 0.5
