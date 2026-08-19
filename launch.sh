@@ -4,6 +4,7 @@ set -euo pipefail
 # ANSI Color Codes
 PINK='\033[38;5;206m'
 GREEN='\033[38;5;46m'
+YELLOW='\033[38;5;226m'
 RESET='\033[0m'
 
 # No argument needed since it's inherently a pink bus!
@@ -102,14 +103,40 @@ fi
 # Hide cursor
 tput civis 2>/dev/null || true
 
+gate_art=(
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"      ||   ||      "
+"     /||===||\\     "
+)
+
 bus_width=100
 
-# Animate moving forward from offscreen left to offscreen right
+# Animate moving forward from offscreen left to offscreen right through the gate
 for (( pos=-bus_width; pos<=term_width; pos+=2 )); do
     clear
     echo -e "${GREEN}STATUS:${RESET} ${PINK}PINK BUS IS ON THE MOVE! 🚌💨🩷${RESET}"
     echo ""
-    echo -e "${PINK}"
+    
+    # Print the roof of the toll gate right-aligned
+    printf "${YELLOW}%*s${RESET}\n" "$term_width" "[=================]"
+    printf "${YELLOW}%*s${RESET}\n" "$term_width" "[    TOLL EXIT    ]"
+    printf "${YELLOW}%*s${RESET}\n" "$term_width" "[=================]"
+    
+    echo -ne "${PINK}"
     
     # Spin the wheels by alternating frames
     frame=$(( (pos / 2) % 2 ))
@@ -119,19 +146,33 @@ for (( pos=-bus_width; pos<=term_width; pos+=2 )); do
         current_art="$bus_art_2"
     fi
     
+    line_idx=0
     while IFS= read -r line; do
         # Ensure line is 100 characters padded
         padded_line=$(printf '%-100s' "$line")
+        gate="${gate_art[$line_idx]:-                   }"
+        
+        # Calculate how much of the bus is visible (terminal width - gate width)
+        vis_width=$((term_width - 19))
+        if (( vis_width < 10 )); then vis_width=10; fi # Safety fallback
         
         if (( pos < 0 )); then
             skip=$(( -pos ))
-            # Print substring starting at 'skip', length 'term_width'
-            echo "${padded_line:$skip:$term_width}"
+            visible="${padded_line:$skip:$vis_width}"
         else
             pad=$(printf '%*s' "$pos" '')
             padded="${pad}${padded_line}"
-            echo "${padded:0:$term_width}"
+            visible="${padded:0:$vis_width}"
         fi
+        
+        # Pad visible with spaces so it exactly matches vis_width and gate aligns perfectly
+        visible=$(printf "%-${vis_width}s" "$visible")
+        # Ensure we don't accidentally exceed vis_width 
+        visible="${visible:0:$vis_width}"
+        
+        # Print the bus layer followed by the gate layer
+        echo -e "${visible}${YELLOW}${gate}${PINK}"
+        ((line_idx++))
     done <<< "$current_art"
     
     echo -e "${RESET}"
